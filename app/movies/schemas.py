@@ -1,12 +1,15 @@
+from enum import Enum
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
-from uuid import UUID
+from typing import Optional, List
+
 
 class CertificationBase(BaseModel):
     name: str
 
+
 class CertificationCreate(CertificationBase):
     pass
+
 
 class CertificationRead(CertificationBase):
     id: int
@@ -31,7 +34,43 @@ class MovieCreate(MovieBase):
 
 class MovieRead(MovieBase):
     id: int
-    uuid: UUID
-    certification: Optional[CertificationRead] = None
+    comments: List["CommentRead"] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommentCreate(BaseModel):
+    movie_id: int
+    text: str
+
+
+class CommentRead(BaseModel):
+    id: int
+    text: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReactionEnum(str, Enum):
+    like = "like"
+    dislike = "dislike"
+
+
+class MovieReactionBase(BaseModel):
+    movie_id: int
+    reaction_type: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MovieReactionCreate(BaseModel):
+    movie_id: int
+    reaction: ReactionEnum
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MovieReaction(MovieReactionBase):
+    id: int
 
     model_config = ConfigDict(from_attributes=True)
