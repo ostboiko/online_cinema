@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.movies import schemas, services
 from app.core.database import get_db
 from typing import List, Optional
+from app.user.dependencies import get_current_user
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
@@ -36,7 +37,11 @@ def read_movie(movie_id: int, db: Session = Depends(get_db)):
     return movie
 
 @router.post("/reactions/")
-def create_reaction(reaction: schemas.MovieReactionCreate, db: Session = Depends(get_db)):
+def create_reaction(
+    reaction: schemas.MovieReactionCreate,
+    db: Session = Depends(get_db),
+    _: None = Depends(get_current_user)
+):
     return services.create_movie_reaction(db=db, reaction=reaction)
 
 @router.get("/reactions/{movie_id}")
@@ -47,5 +52,9 @@ def get_reactions(movie_id: int, db: Session = Depends(get_db)):
     return reactions
 
 @router.post("/comments/", response_model=schemas.CommentRead)
-def add_comment(comment: schemas.CommentCreate, db: Session = Depends(get_db)):
+def add_comment(
+    comment: schemas.CommentCreate,
+    db: Session = Depends(get_db),
+    _: None = Depends(get_current_user)
+):
     return services.create_comment(db, comment)
